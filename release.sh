@@ -22,7 +22,7 @@ echo "Vérification de l'API locale..."
 if curl -s http://localhost:3000/ | grep -q "API de test déployée avec succès"; then
   echo "✅ L'API répond correctement"
 else
-  echo "❌ L'API ne répond pas comme prévu (ou pas en cours d'exécution)"
+  echo "L'API ne répond pas comme prévu (ou pas en cours d'exécution)"
 fi
 
 # Étape 4 : Lancement du playbook Ansible
