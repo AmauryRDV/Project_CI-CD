@@ -25,7 +25,7 @@ else
   echo "L'API ne répond pas comme prévu (ou pas en cours d'exécution)"
 fi
 
-# Étape 4 : Lancement du playbook Ansible
+# Étape 4 : Lancement du playbook Ansible #
 echo "Lancement du déploiement avec Ansible..."
 ansible-playbook -i ansible/inventory.ini ansible/deploy.yml
 
