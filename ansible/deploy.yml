@@ -1,0 +1,73 @@
+---
+- hosts: web
+  become: true
+  tasks:
+    - name: Installer Git
+      apt:
+        name: git
+        state: present
+        update_cache: yes
+
+    - name: Ajouter le dépôt NodeSource pour Node.js 18
+      shell: |
+        curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+      args:
+        executable: /bin/bash
+
+    - name: Installer Node.js 18
+      apt:
+        name: nodejs
+        state: present
+
+    - name: Créer dossier .ssh si absent
+      file:
+        path: /home/ubuntu/.ssh
+        state: directory
+        mode: '0700'
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Ajouter GitHub au known_hosts
+      ansible.builtin.known_hosts:
+        name: github.com
+        key: "{{ lookup('pipe', 'ssh-keyscan github.com') }}"
+        path: /home/ubuntu/.ssh/known_hosts
+        state: present
+      become_user: ubuntu
+
+    - name: S’assurer que le dossier api appartient à ubuntu
+      file:
+        path: /home/ubuntu/api
+        owner: ubuntu
+        group: ubuntu
+        recurse: yes
+
+    - name: Autoriser le dossier API comme safe pour git
+      command: git config --global --add safe.directory /home/ubuntu/api
+      become_user: ubuntu
+
+    - name: Cloner le dépôt de l’API
+      git:
+        repo: 'git@github.com:AmauryRDV/Project_CI-CD.git'
+        dest: /home/ubuntu/api
+        version: master
+        force: yes
+        accept_hostkey: yes
+      become_user: ubuntu
+
+    - name: Installer les dépendances Node.js
+      npm:
+        path: /home/ubuntu/api
+      become_user: ubuntu
+
+    - name: Installer PM2 globalement
+      npm:
+        name: pm2
+        global: yes
+      become_user: ubuntu
+
+    - name: Démarrer l’API avec PM2
+      command: pm2 start index.js --name api
+      args:
+        chdir: /home/ubuntu/api
+      become_user: ubuntu

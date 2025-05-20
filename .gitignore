@@ -1,0 +1,10 @@
+# Ignore Terraform state and plugins
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+gcp-key.json
+
+# Ignore node modules (si Node.js)
+node_modules/
+
+# Autres fichiers/dossiers à ignorer
