@@ -1,32 +1,20 @@
-name: Release CI/CD
+name: Déploiement Release
 
 on:
   push:
-    paths:
-      - 'api/**'
-  pull_request:
-    paths:
-      - 'api/**'
+    tags:
+      - 'release-*'
 
 jobs:
-  test:
+  run-release-script:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: api
-
     steps:
-      - name: Checkout repository
+      - name: Checkout du dépôt
         uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+      - name: Donner les droits d'exécution au script
+        run: chmod +x release.sh
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run the API (check startup)
-        run: node index.js &
+      - name: Exécuter le script de release
+        run: ./release.sh
