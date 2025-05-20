@@ -17,7 +17,16 @@ git add CHANGELOG.md
 git commit -m "Mise à jour du changelog pour release-$VERSION"
 git push
 
-# Étape 3 : Lancement du playbook Ansible
+# Étape 3 : Test local de l'API (si elle tourne déjà)
+echo "Vérification de l'API locale..."
+if curl -s http://localhost:3000/ | grep -q "API de test déployée avec succès"; then
+  echo "✅ L'API répond correctement"
+else
+  echo "❌ L'API ne répond pas comme prévu (ou pas en cours d'exécution)"
+  # Ce n'est pas bloquant, on continue
+fi
+
+# Étape 4 : Lancement du playbook Ansible
 echo "Lancement du déploiement avec Ansible..."
 ansible-playbook -i ansible/inventory.ini ansible/deploy.yml
 
