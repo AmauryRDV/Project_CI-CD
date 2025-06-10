@@ -21,53 +21,56 @@
 
     - name: Créer dossier .ssh si absent
       file:
-        path: /home/ubuntu/.ssh
+        path: /home/amaur/.ssh
         state: directory
         mode: '0700'
-        owner: ubuntu
-        group: ubuntu
+        owner: amaur
+        group: amaur
 
     - name: Ajouter GitHub au known_hosts
       ansible.builtin.known_hosts:
         name: github.com
         key: "{{ lookup('pipe', 'ssh-keyscan github.com') }}"
-        path: /home/ubuntu/.ssh/known_hosts
+        path: /home/amaur/.ssh/known_hosts
         state: present
-      become_user: ubuntu
+      become: false
+      become_user: amaur
 
-    - name: S’assurer que le dossier api appartient à ubuntu
+    - name: S’assurer que le dossier api appartient à amaur
       file:
-        path: /home/ubuntu/api
-        owner: ubuntu
-        group: ubuntu
+        path: /home/amaur/api
+        owner: amaur
+        group: amaur
         recurse: yes
 
     - name: Autoriser le dossier API comme safe pour git
-      command: git config --global --add safe.directory /home/ubuntu/api
-      become_user: ubuntu
+      command: git config --global --add safe.directory /home/amaur/api
+      become_user: amaur
 
     - name: Cloner le dépôt de l’API
       git:
         repo: 'git@github.com:AmauryRDV/Project_CI-CD.git'
-        dest: /home/ubuntu/api
-        version: master
+        dest: /home/amaur/api
+        version: main
         force: yes
         accept_hostkey: yes
-      become_user: ubuntu
+        key_file: /home/amaur/.ssh/id_ed25519
+      become_user: amaur
+
 
     - name: Installer les dépendances Node.js
       npm:
-        path: /home/ubuntu/api
-      become_user: ubuntu
+        path: /home/amaur/api
+      become_user: amaur
 
     - name: Installer PM2 globalement
       npm:
         name: pm2
         global: yes
-      become_user: ubuntu
+      become_user: amaur
 
-    - name: Démarrer l’API avec PM2
-      command: pm2 start index.js --name api
+    - name: Démarrer l'API avec node (nohup)
+      command: nohup node /home/amaur/api/api/index.js > /home/amaur/api/api.log 2>&1 &
       args:
-        chdir: /home/ubuntu/api
-      become_user: ubuntu
+        chdir: /home/amaur/api
+      become_user: amaur
