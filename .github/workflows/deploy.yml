@@ -1,0 +1,28 @@
+name: Déploiement Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Déployer sur la VM
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Récupérer le code
+      uses: actions/checkout@v3
+
+    - name: Ajouter la clé SSH privée
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Ajouter l'hôte à known_hosts
+      run: |
+        ssh-keyscan -H 34.38.9.249 >> ~/.ssh/known_hosts
+
+    - name: Lancer le script de release sur la VM
+      run: |
+        ssh amaur@34.38.9.249 'bash ~/api/release.sh'
