@@ -8,7 +8,7 @@ echo "=== Début du script de release ==="
 cd ~
 rm -rf api
 echo "Clonage du dépôt Git..."
-git clone git@github.com:AmauryRDV/Project_CI-CD.git api
+git clone git@github.com:AmauryRDV/Project_CI-CD.git
 cd api
 
 # Étape 1 : Génération d'un tag Git
