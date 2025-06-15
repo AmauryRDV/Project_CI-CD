@@ -1,4 +1,4 @@
-# Projet CI/CD & Infrastructure pour API Mobile
+# 🚀 Projet CI/CD & Infrastructure pour API Mobile
 
 ## 1. Présentation du projet
 
@@ -39,81 +39,102 @@ git checkout -b feature/ma-fonctionnalite
 git push -u origin feature/ma-fonctionnalite
 ```
 
+📸 *Exemple de vue des branches Git :*  
+![Branches Git](./captures/branches_git.png)
+
 ---
 
 ## 3. Infrastructure as Code
 
-**À venir :**  
-Scripts Terraform dans `terraform/` pour provisionner :  
-- VPC, firewall (ports 22, 3000)  
-- VM Compute Engine (`api-vm`)  
-- Backend d’état dans un bucket GCS  
+📁 Dossier : `terraform/`  
+**À venir** :  
+- VPC + règles firewall (ports 22, 3000)  
+- Instance Compute Engine  
+- Backend distant pour l'état (`bucket GCS`)
 
 ---
 
 ## 4. Configuration serveur (Ansible)
 
-Playbooks dans `ansible/` :  
-- Installation de Git, Node.js  
-- Déploiement de l’API (`deploy.yml`)  
-- Installation et configuration de Prometheus  
+📁 Dossier : `ansible/`  
+Playbook `deploy.yml` :
+- Installation Node.js, Git
+- Déploiement API
+- Installation Prometheus
 
 ---
 
 ## 5. Pipeline CI/CD (GitHub Actions)
 
-Fichier : `.github/workflows/deploy.yml`
+📁 Fichier : `.github/workflows/deploy.yml`
 
-### Étapes réalisées  
-1. Checkout du code  
-2. Chargement de la clé SSH (`ssh-agent`)  
-3. Ajout de l’hôte à `known_hosts`  
-4. Exécution de `release.sh` sur la VM  
+### Étapes réalisées
+1. `checkout`
+2. Setup SSH
+3. Ajout known_hosts
+4. `ssh` vers VM & exécution de `release.sh`
 
-### À compléter  
-- Lint & tests  
-- Build & packaging  
-- Déploiement staging  
-- Snapshot avant prod  
-- Job rollback automatique  
+📸 *Exécution du pipeline :*  
+![CI/CD pipeline](./captures/pipeline_execution.png)
+
+### À compléter
+- Lint / Tests
+- Build / Packaging
+- Déploiement staging
+- Snapshots automatiques
+- Rollback auto
 
 ---
 
 ## 6. Versionnement & Release
 
-Le script `release.sh` (dans `api/`) effectue :  
-1. Clonage propre du repo  
-2. Génération d’un tag `release-YYYYMMDDHHMMSS`  
-3. Mise à jour de `CHANGELOG.md`  
-4. Déploiement via Ansible  
+📄 `release.sh` effectue :
+- Clonage du dépôt
+- Tag `release-YYYYMMDDHHMMSS`
+- Changelog automatique
+- Déploiement via Ansible
+
+📸 *Tag Git créé automatiquement :*  
+![Tag Git](./captures/git_tag_release.png)
 
 ---
 
 ## 7. Monitoring & Logs
 
-- Endpoint `/metrics` exposé via `express-prometheus-middleware`  
-- Config Prometheus : `/etc/prometheus/prometheus.yml`
-  ```yaml
-  global:
-    scrape_interval: 15s
+🖥️ Prometheus installé sur la VM  
+- Métriques exposées sur `/metrics`  
+- Fichier de config : `/etc/prometheus/prometheus.yml`
 
-  scrape_configs:
-    - job_name: 'api-node'
-      static_configs:
-        - targets: ['localhost:3000']
-  ```
-- **À venir :** dashboards Grafana, alertes  
+```yaml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'api-node'
+    static_configs:
+      - targets: ['localhost:3000']
+```
+
+📸 *Interface Prometheus :*  
+![Prometheus metrics](./captures/prometheus_metrics.png)
+
+### À venir
+- Dashboard Grafana
+- Alerte en cas d’échec
 
 ---
 
 ## 8. Sauvegardes & Rollback
 
-### Snapshots  
-> À automatiser dans pipeline  
-Commande gcloud pour snapshot du disque avant déploiement.
+### Snapshots
+📁 Dossier `snapshots/` prévu  
+Commande GCP :
+```bash
+gcloud compute disks snapshot api-disk --snapshot-names snapshot-$(date +%Y%m%d%H%M%S)
+```
 
-### Rollback  
-Script `rollback/rollback.sh` :
+### Rollback
+📁 Script : `rollback/rollback.sh`
 ```bash
 #!/bin/bash
 set -e
@@ -133,40 +154,61 @@ curl -s http://localhost:3000/ | grep -q "API de test déployée avec succès" \
   || (echo "⚠️ Rollback échoué"; exit 1)
 ```
 
-Lancer : `ssh amaur@34.38.9.249 'bash ~/rollback/rollback.sh <tag>'`
+📸 *Résultat d’un rollback réussi :*  
+![Rollback](./captures/rollback_success.png)
 
 ---
 
 ## 9. Gestion des secrets
 
-- **GitHub Secrets** : `SSH_PRIVATE_KEY`, `SSH_HOST`, `SSH_USER`  
-- Fichiers `.env` (non commit) pour variables d’env  
-- Inventaires Ansible distincts pour staging/prod  
+🔐 GitHub Secrets utilisés :
+- `SSH_PRIVATE_KEY`
+- `SSH_USER`, `SSH_HOST`
+
+Autres :
+- `.env` pour les variables sensibles
+- Inventaire Ansible séparé pour staging / production
 
 ---
 
 ## 10. Procédures
 
-### Déploiement
-1. Push sur `develop`  
-2. Création de `release/x.y.z`  
-3. Merge dans `main` → déclenche CI/CD  
-
-### Rollback
+### 🔁 Déploiement
 ```bash
-ssh amaur@34.38.9.249 'bash ~/rollback/rollback.sh <tag>'
+# Dev → Release
+git checkout -b release/1.0.0
+git merge develop
+git checkout main
+git merge release/1.0.0
 ```
 
-### Validation
-- Logs API : `tail -f ~/api/api.log`  
-- Métriques : `curl http://34.38.9.249:3000/metrics`  
-- VM status : `gcloud compute instances list`  
+### 🔙 Rollback
+```bash
+ssh amaur@34.38.9.249 'bash ~/rollback/rollback.sh release-20250610140652'
+```
+
+### ✅ Validation
+- API : `curl http://<ip>:3000`
+- Logs : `tail -f ~/api/api.log`
+- GCP VM : `gcloud compute instances list`
 
 ---
 
-> **Statut :**  
-> ✅ API déployée & script release  
-> ✅ GitFlow de base  
-> ✅ Monitoring Prometheus  
-> ✅ Script rollback opérationnel  
-> 🚧 Terraform, tests CI, snapshots et Grafana en cours  
+## ✅ Statut d'avancement
+
+| État                     | Statut |
+|--------------------------|--------|
+| CI/CD pipeline (prod)    | ✅     |
+| GitFlow                  | ✅     |
+| Monitoring Prometheus    | ✅     |
+| Script rollback          | ✅     |
+| Tests automatisés        | 🚧     |
+| Terraform infrastructure | 🚧     |
+| Snapshots automatisés    | 🚧     |
+| Dashboard Grafana        | 🚧     |
+
+---
+
+> 📝 Pense à exécuter tous les scripts depuis la VM et à stocker les captures dans le dossier `captures/`.  
+> Pour les points manquants, tu peux ajouter des TODO ou simuler certains éléments si besoin (ex: captures, scripts vides, etc.).
+
