@@ -8,7 +8,8 @@ fi
 
 TAG=$1
 
-cd ~/api/api
+cd ~/api
+
 echo "Arrêt de l'API (si en cours)..."
 pkill -f index.js || true
 
