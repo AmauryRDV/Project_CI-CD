@@ -44,17 +44,7 @@ git push -u origin feature/ma-fonctionnalite
 
 ---
 
-## 3. Infrastructure as Code
-
-📁 Dossier : `terraform/`  
-**À venir** :  
-- VPC + règles firewall (ports 22, 3000)  
-- Instance Compute Engine  
-- Backend distant pour l'état (`bucket GCS`)
-
----
-
-## 4. Configuration serveur (Ansible)
+## 3. Configuration serveur (Ansible)
 
 📁 Dossier : `ansible/`  
 Playbook `deploy.yml` :
@@ -64,7 +54,7 @@ Playbook `deploy.yml` :
 
 ---
 
-## 5. Pipeline CI/CD (GitHub Actions)
+## 4. Pipeline CI/CD (GitHub Actions)
 
 📁 Fichier : `.github/workflows/deploy.yml`
 
@@ -78,15 +68,11 @@ Playbook `deploy.yml` :
 ![CI/CD pipeline](./captures/pipeline_execution.png)
 
 ### À compléter
-- Lint / Tests
-- Build / Packaging
-- Déploiement staging
-- Snapshots automatiques
 - Rollback auto
 
 ---
 
-## 6. Versionnement & Release
+## 5. Versionnement & Release
 
 📄 `release.sh` effectue :
 - Clonage du dépôt
@@ -99,7 +85,7 @@ Playbook `deploy.yml` :
 
 ---
 
-## 7. Monitoring & Logs
+## 6. Monitoring & Logs
 
 🖥️ Prometheus installé sur la VM  
 - Métriques exposées sur `/metrics`  
@@ -118,13 +104,9 @@ scrape_configs:
 📸 *Interface Prometheus :*  
 ![Prometheus metrics](./captures/prometheus_metrics.png)
 
-### À venir
-- Dashboard Grafana
-- Alerte en cas d’échec
-
 ---
 
-## 8. Sauvegardes & Rollback
+## 7. Sauvegardes & Rollback
 
 ### Snapshots
 📁 Dossier `snapshots/` prévu  
@@ -159,7 +141,7 @@ curl -s http://localhost:3000/ | grep -q "API de test déployée avec succès" \
 
 ---
 
-## 9. Gestion des secrets
+## 8. Gestion des secrets
 
 🔐 GitHub Secrets utilisés :
 - `SSH_PRIVATE_KEY`
@@ -171,7 +153,7 @@ Autres :
 
 ---
 
-## 10. Procédures
+## 9. Procédures
 
 ### 🔁 Déploiement
 ```bash
@@ -202,8 +184,8 @@ ssh amaur@34.38.9.249 'bash ~/rollback/rollback.sh release-20250610140652'
 | GitFlow                  | ✅     |
 | Monitoring Prometheus    | ✅     |
 | Script rollback          | ✅     |
-| Tests automatisés        | 🚧     |
-| Terraform infrastructure | 🚧     |
+| Tests automatisés        | ✅     |
+| Terraform infrastructure | ✅     |
 | Snapshots automatisés    | 🚧     |
 | Dashboard Grafana        | 🚧     |
 
