@@ -207,8 +207,5 @@ ssh amaur@34.38.9.249 'bash ~/rollback/rollback.sh release-20250610140652'
 | Snapshots automatisés    | 🚧     |
 | Dashboard Grafana        | 🚧     |
 
----
 
-> 📝 Pense à exécuter tous les scripts depuis la VM et à stocker les captures dans le dossier `captures/`.  
-> Pour les points manquants, tu peux ajouter des TODO ou simuler certains éléments si besoin (ex: captures, scripts vides, etc.).
 
